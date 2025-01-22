@@ -172,7 +172,7 @@ class Searches:
                     By.ID, "sb_form_q", timeToWait=40
                 )
                 searchbar.clear()
-                term = next(termsCycle)
+                term = next(termsCycle) + str(random.randint(1, 10240))
                 logging.debug(f"term={term}")
                 time.sleep(1)
                 searchbar.send_keys(term)
