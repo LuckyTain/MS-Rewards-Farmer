@@ -1,7 +1,9 @@
 import argparse
 import logging
 import random
+import shutil
 from pathlib import Path
+from time import sleep
 from types import TracebackType
 from typing import Any, Type
 
@@ -106,12 +108,22 @@ class Browser:
         version = self.getChromeVersion()
         major = int(version.split(".")[0])
 
-        driver = webdriver.Chrome(
-            options=options,
-            seleniumwire_options=seleniumwireOptions,
-            user_data_dir=self.userDataDir.as_posix(),
-            version_main=major,
-        )
+        driver_success = False
+        while not driver_success:
+            try:
+                driver = webdriver.Chrome(
+                    options=options,
+                    seleniumwire_options=seleniumwireOptions,
+                    user_data_dir=self.userDataDir.as_posix(),
+                    version_main=major,
+                )
+                driver_success = True
+            except Exception as e:
+                logging.error(f"Error: {e}")
+                logging.error(f"Delete sessions dir {str(self.userDataDir)}, Retrying...")
+                shutil.rmtree(self.userDataDir)
+                sleep(5)
+                continue
 
         seleniumLogger = logging.getLogger("seleniumwire")
         seleniumLogger.setLevel(logging.ERROR)
